@@ -49,12 +49,12 @@ export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
   @Get()
-  getPosts(): PostModel[] {
+  getPosts() {
     return this.postService.getAllPosts();
   }
 
   @Get(':id')
-  getPost(@Param('id') id: string): PostModel {
+  getPost(@Param('id') id: string) {
     return this.postService.getPostById(+id);
   }
 
@@ -63,7 +63,7 @@ export class PostsController {
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
-  ): PostModel {
+  ) {
     return this.postService.createPost(author, title, content);
   }
 
