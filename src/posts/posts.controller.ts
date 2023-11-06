@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { PostsService } from './posts.service';
 
 /**
@@ -52,5 +52,10 @@ export class PostsController {
   @Get()
   getPosts(): PostModel[] {
     return posts;
+  }
+
+  @Get(':id')
+  getPost(@Param('id') id: string): PostModel {
+    return posts.find((post) => post.id === +id);
   }
 }
