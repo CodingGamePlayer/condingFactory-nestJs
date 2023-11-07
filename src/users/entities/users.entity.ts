@@ -1,5 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Post } from '@nestjs/common';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RolesEnum } from '../const/roles.enum';
+import { PostsModel } from 'src/posts/entities/posts.entity';
 
 @Entity()
 export class UsersModel {
@@ -10,7 +12,7 @@ export class UsersModel {
     length: 20,
     unique: true,
   })
-  ninckname: string;
+  nickname: string;
 
   @Column({
     unique: true,
@@ -25,4 +27,7 @@ export class UsersModel {
     default: RolesEnum.USER,
   })
   role: RolesEnum;
+
+  @OneToMany(() => PostsModel, (post) => post.author)
+  posts: PostsModel[];
 }

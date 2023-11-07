@@ -17,33 +17,6 @@ import { PostModel, PostsService } from './posts.service';
  * commentCount : number;
  */
 
-let posts: PostModel[] = [
-  {
-    id: 1,
-    author: 'JaeSeoKim2',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-  {
-    id: 2,
-    author: 'JaeSeoKim2',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-  {
-    id: 3,
-    author: 'JaeSeoKim3',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-];
-
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postService: PostsService) {}
@@ -60,21 +33,20 @@ export class PostsController {
 
   @Post()
   postPosts(
-    @Body('author') author: string,
+    @Body('authorId') authorId: number,
     @Body('title') title: string,
     @Body('content') content: string,
   ) {
-    return this.postService.createPost(author, title, content);
+    return this.postService.createPost(authorId, title, content);
   }
 
   @Put(':id')
   putPost(
     @Param('id') id: string,
-    @Body('author') author?: string,
     @Body('title') title?: string,
     @Body('content') content?: string,
   ) {
-    return this.postService.updatePost(+id, author, title, content);
+    return this.postService.updatePost(+id, title, content);
   }
 
   @Delete(':id')

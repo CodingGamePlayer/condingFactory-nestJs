@@ -12,33 +12,6 @@ export interface PostModel {
   commentCount: number;
 }
 
-let posts: PostModel[] = [
-  {
-    id: 1,
-    author: 'JaeSeoKim2',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-  {
-    id: 2,
-    author: 'JaeSeoKim2',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-  {
-    id: 3,
-    author: 'JaeSeoKim3',
-    title: 'NestJS',
-    content: 'NestJS is Awesome',
-    likeCount: 10000000,
-    commentCount: 9999999,
-  },
-];
-
 @Injectable()
 export class PostsService {
   constructor(
@@ -46,13 +19,20 @@ export class PostsService {
     private readonly postsRepository: Repository<PostsModel>,
   ) {}
   async getAllPosts() {
-    return await this.postsRepository.find();
+    return await this.postsRepository.find({
+      relations: {
+        author: true,
+      },
+    });
   }
 
   async getPostById(id: number) {
     const post = await this.postsRepository.findOne({
       where: {
         id: id,
+      },
+      relations: {
+        author: true,
       },
     });
 
@@ -62,9 +42,11 @@ export class PostsService {
     return post;
   }
 
-  createPost(author: string, title: string, content: string) {
+  createPost(authorId: number, title: string, content: string) {
     const post = this.postsRepository.create({
-      author,
+      author: {
+        id: authorId,
+      },
       title,
       content,
       likeCount: 0,
@@ -76,7 +58,7 @@ export class PostsService {
     return newPost;
   }
 
-  async updatePost(id: number, author: string, title: string, content: string) {
+  async updatePost(id: number, title: string, content: string) {
     const post = await this.postsRepository.findOne({
       where: {
         id,
@@ -85,10 +67,6 @@ export class PostsService {
 
     if (!post) {
       throw new NotFoundException();
-    }
-
-    if (author) {
-      post.author = author;
     }
 
     if (title) {
