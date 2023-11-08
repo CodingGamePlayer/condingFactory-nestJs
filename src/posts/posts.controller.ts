@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { PostModel, PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { User } from 'src/users/decorator/user.decorator';
+import { UsersModel } from 'src/users/entities/users.entity';
 
 /**
  * author : string;
@@ -39,13 +41,11 @@ export class PostsController {
   @Post()
   @UseGuards(AccessTokenGuard)
   postPosts(
-    @Request() req: any,
+    @User() user: UsersModel,
     @Body('title') title: string,
     @Body('content') content: string,
   ) {
-    const authorId = req.user.id;
-
-    return this.postService.createPost(authorId, title, content);
+    return this.postService.createPost(user.id, title, content);
   }
 
   @Put(':id')
