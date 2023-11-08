@@ -11,6 +11,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersServie: UsersService,
   ) {}
+
+  async extractTokenFromHeaders(headers: string, isBearer: boolean) {
+    const splitToken = headers.split(' ');
+
+    const prefix = isBearer ? 'Bearer' : 'Basic';
+
+    if (splitToken.length !== 2 || splitToken[0] !== prefix) {
+      throw new UnauthorizedException('잘못된 토큰입니다.');
+    }
+
+    const token = splitToken[1];
+
+    return token;
+  }
+
   /**
    * 우리가 만들 기능
    * 1. registerWithEmail
