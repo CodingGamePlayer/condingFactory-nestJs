@@ -16,6 +16,17 @@ export class AuthController {
     };
   }
 
+  @Post('token/refresh')
+  postTokenRefresh(@Headers('authorization') rawToken: string) {
+    const token = this.authService.extractTokenFromHeaders(rawToken, true);
+
+    const newToken = this.authService.rotateToken(token, true);
+
+    return {
+      refreshToken: newToken,
+    };
+  }
+
   @Post('login/email')
   postLoginEmail(@Headers('authorization') rawToken: string) {
     // email:password -> base64
