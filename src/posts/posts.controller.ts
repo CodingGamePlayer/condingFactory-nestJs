@@ -15,6 +15,8 @@ import { PostModel, PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 /**
  * author : string;
@@ -42,19 +44,21 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   postPosts(
     @User() user: UsersModel,
-    @Body('title') title: string,
-    @Body('content') content: string,
+    @Body() body: CreatePostDto,
+    // @Body('title') title: string,
+    // @Body('content') content: string,
   ) {
-    return this.postService.createPost(user.id, title, content);
+    return this.postService.createPost(user.id, body);
   }
 
   @Put(':id')
   putPost(
     @Param('id', ParseIntPipe) id: number,
-    @Body('title') title?: string,
-    @Body('content') content?: string,
+    @Body() body: UpdatePostDto,
+    // @Body('title') title?: string,
+    // @Body('content') content?: string,
   ) {
-    return this.postService.updatePost(+id, title, content);
+    return this.postService.updatePost(id, body);
   }
 
   @Delete(':id')
