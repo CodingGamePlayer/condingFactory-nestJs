@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDto } from './dto/pagenate-post.dto';
+import { HOST, PROTOCOL } from 'src/auth/const/env.const';
 
 export interface PostModel {
   id: number;
@@ -26,6 +28,51 @@ export class PostsService {
         author: true,
       },
     });
+  }
+
+  async generatePosts(userId: number) {
+    for (let i = 0; i < 100; i++) {
+      await this.createPost(userId, {
+        title: `title${i}`,
+        content: `content${i}`,
+      });
+    }
+  }
+
+  async paginatePosts(pageDto: PaginatePostDto) {
+    const posts = await this.postsRepository.find({
+      where: {
+        id: MoreThan(pageDto.where__id_more_than ?? 0),
+      },
+      order: {
+        createdAt: pageDto.order__createdAt,
+      },
+      take: pageDto.take,
+    });
+
+    const lastItem =
+      posts.length > 0 && posts.length === pageDto.take
+        ? posts[posts.length - 1]
+        : null;
+
+    const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
+
+    if (nextUrl) {
+      for (const key of Object.keys(pageDto)) {
+        if (key !== 'where__id_more_than') {
+          nextUrl.searchParams.append(key, pageDto[key]);
+        }
+      }
+    }
+
+    nextUrl.searchParams.append('where__id_more_than', lastItem.id.toString());
+
+    return {
+      data: posts,
+      cursor: lastItem?.id ?? null,
+      count: posts.length,
+      next: nextUrl?.toString() ?? null,
+    };
   }
 
   async getPostById(id: number) {

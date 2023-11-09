@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDto } from './dto/pagenate-post.dto';
 
 /**
  * author : string;
@@ -32,8 +34,16 @@ export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
   @Get()
-  getPosts() {
-    return this.postService.getAllPosts();
+  getPosts(@Query() query: PaginatePostDto) {
+    return this.postService.paginatePosts(query);
+  }
+
+  @Post('random')
+  @UseGuards(AccessTokenGuard)
+  async postPostRandom(@User() user: UsersModel) {
+    await this.postService.generatePosts(user.id);
+
+    return true;
   }
 
   @Get(':id')
