@@ -19,7 +19,7 @@ import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PaginatePostDto } from './dto/pagenate-post.dto';
+import { PaginatePostDto } from './dto/paginate-post.dto';
 
 /**
  * author : string;
