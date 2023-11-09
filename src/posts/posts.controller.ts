@@ -11,15 +11,21 @@ import {
   Put,
   Query,
   Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { PostModel, PostsService } from './posts.service';
+import { PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageModelType } from 'src/common/entities/image.entity';
+import { DataSource } from 'typeorm';
+import { PostsImagesService } from './image/dto/image.service';
 
 /**
  * author : string;
@@ -31,7 +37,11 @@ import { PaginatePostDto } from './dto/paginate-post.dto';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postService: PostsService) {}
+  constructor(
+    private readonly postService: PostsService,
+    private readonly dataSource: DataSource,
+    private readonly postsImagesService: PostsImagesService,
+  ) {}
 
   @Get()
   getPosts(@Query() query: PaginatePostDto) {
@@ -53,13 +63,41 @@ export class PostsController {
 
   @Post()
   @UseGuards(AccessTokenGuard)
-  postPosts(
+  async postPosts(
     @User() user: UsersModel,
     @Body() body: CreatePostDto,
     // @Body('title') title: string,
     // @Body('content') content: string,
   ) {
-    return this.postService.createPost(user.id, body);
+    const qr = this.dataSource.createQueryRunner();
+
+    await qr.connect();
+    await qr.startTransaction();
+
+    try {
+      const post = await this.postService.createPost(user.id, body, qr);
+
+      for (let i = 0; i < body.images.length; i++) {
+        await this.postsImagesService.createPostImage(
+          {
+            post,
+            order: i,
+            path: body.images[i],
+            type: ImageModelType.POST_IMAGE,
+          },
+          qr,
+        );
+      }
+
+      await qr.commitTransaction();
+      await qr.release();
+
+      return this.postService.getPostById(post.id);
+    } catch (error) {
+      await qr.rollbackTransaction();
+      await qr.release();
+      throw error;
+    }
   }
 
   @Patch(':id')

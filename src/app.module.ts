@@ -17,10 +17,17 @@ import {
   ENV_DB_PORT_KEY,
   ENV_DB_USERNAME_KEY,
 } from './common/const/env-keys.const';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
+import { ImageModel } from './common/entities/image.entity';
 
 @Module({
   imports: [
     PostsModule,
+    ServeStaticModule.forRoot({
+      rootPath: PUBLIC_FOLDER_PATH,
+      serveRoot: '/public',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -28,11 +35,11 @@ import {
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env[ENV_DB_HOST_KEY] || 'localhost',
-      port: parseInt(process.env[ENV_DB_PORT_KEY]) || 5433,
+      port: parseInt(process.env[ENV_DB_PORT_KEY]) || 5410,
       username: process.env[ENV_DB_USERNAME_KEY] || 'postgres',
       password: process.env[ENV_DB_PASSWORD_KEY] || 'postgres',
       database: process.env[ENV_DB_DATABASE_KEY] || 'postgres',
-      entities: [PostsModel, UsersModel],
+      entities: [PostsModel, UsersModel, ImageModel],
       synchronize: true,
     }),
     UsersModule,

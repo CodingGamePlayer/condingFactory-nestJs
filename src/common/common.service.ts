@@ -60,9 +60,6 @@ export class CommonService {
 
     const data = results;
     // 마지막 데이터
-    console.log(data.length);
-    console.log(findOptions.take);
-
     const lastItem = data.length > 0 ? data[data.length - 1] : null;
 
     const protocol = this.configService.get<string>(ENV_PROTOCOL_KEY);
