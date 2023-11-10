@@ -1,12 +1,12 @@
-import { DEFAULT_POST_FIND_OPTIONS } from './const/default-post-find-options.const';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CommonService } from 'src/common/common.service';
+import {
+  ENV_HOST_KEY,
+  ENV_PROTOCOL_KEY,
+} from 'src/common/const/env-keys.const';
+import { ImageModel } from 'src/common/entity/image.entity';
 import {
   FindOptionsWhere,
   LessThan,
@@ -14,24 +14,11 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
+import { DEFAULT_POST_FIND_OPTIONS } from './const/default-post-find-options.const';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
-import { CommonService } from 'src/common/common.service';
-import {
-  ENV_HOST_KEY,
-  ENV_PROTOCOL_KEY,
-} from 'src/common/const/env-keys.const';
-import {
-  POST_IMAGE_PATH,
-  PUBLIC_FOLDER_PATH,
-  TEMP_FOLDER_PATH,
-} from 'src/common/const/path.const';
-import { basename, join } from 'path';
-import { promises } from 'fs';
-import { CreatePostImageDto } from './image/dto/create-image.dto';
-import { ImageModel } from 'src/common/entities/image.entity';
-import { Query } from 'typeorm/driver/Query';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { PostsModel } from './entity/posts.entity';
 
 @Injectable()
 export class PostsService {

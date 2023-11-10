@@ -5,17 +5,15 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PostsModule } from './posts/posts.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostsModel } from './posts/entities/posts.entity';
-import { UsersModule } from './users/users.module';
-import { UsersModel } from './users/entities/users.entity';
 import { AuthModule } from './auth/auth.module';
+import { ChatsModule } from './chats/chats.module';
 import { CommonModule } from './common/common.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
 import {
   ENV_DB_DATABASE_KEY,
   ENV_DB_HOST_KEY,
@@ -23,11 +21,11 @@ import {
   ENV_DB_PORT_KEY,
   ENV_DB_USERNAME_KEY,
 } from './common/const/env-keys.const';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
-import { ImageModel } from './common/entities/image.entity';
 import { LogMiddleware } from './common/middleware/log.middleware';
-import { ChatsModule } from './chats/chats.module';
+import { CommentsModule } from './posts/comments/comments.module';
+import { PostsModule } from './posts/posts.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -47,13 +45,17 @@ import { ChatsModule } from './chats/chats.module';
       username: process.env[ENV_DB_USERNAME_KEY] || 'postgres',
       password: process.env[ENV_DB_PASSWORD_KEY] || 'postgres',
       database: process.env[ENV_DB_DATABASE_KEY] || 'postgres',
-      entities: [PostsModel, UsersModel, ImageModel],
+      entities: [
+        // 프로젝트 경로에 .entity로 되어진 파일을 모두 읽어온다.
+        __dirname + '/**/*.entity{.ts,.js}',
+      ],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     CommonModule,
     ChatsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [

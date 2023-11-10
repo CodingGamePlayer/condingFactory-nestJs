@@ -1,15 +1,19 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { BasePaginationDto } from './dto/base-paginatino.dto';
 import {
   FindManyOptions,
   FindOptionsOrder,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
-import { BaseModel } from './entities/base.entity';
-import { FILTER_MAPPER } from './const/filter-mapper.const';
 import { ENV_HOST_KEY, ENV_PROTOCOL_KEY } from './const/env-keys.const';
+import { FILTER_MAPPER } from './const/filter-mapper.const';
+import { BasePaginationDto } from './dto/base-paginatino.dto';
+import { BaseModel } from './entity/base.entity';
 
 @Injectable()
 export class CommonService {
@@ -51,6 +55,8 @@ export class CommonService {
     overrideFindOptions: FindManyOptions<T> = {},
     path: string,
   ) {
+    console.log({ overrideFindOptions });
+
     const findOptions = this.composeFindOptions<T>(dto);
 
     const results = await repository.find({
@@ -61,6 +67,10 @@ export class CommonService {
     const data = results;
     // 마지막 데이터
     const lastItem = data.length > 0 ? data[data.length - 1] : null;
+
+    if (!lastItem) {
+      throw new NotFoundException('데이터가 없습니다.');
+    }
 
     const protocol = this.configService.get<string>(ENV_PROTOCOL_KEY);
 

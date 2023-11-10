@@ -1,11 +1,10 @@
-import { POST_PUBLIC_IMAGE_PATH } from './../const/path.const';
-import { Column, Entity, ManyToOne } from 'typeorm';
-import { BaseModel } from './base.entity';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { join } from 'path';
-import { POST_IMAGE_PATH } from '../const/path.const';
-import { PostsModel } from 'src/posts/entities/posts.entity';
+import { PostsModel } from 'src/posts/entity/posts.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { POST_PUBLIC_IMAGE_PATH } from '../const/path.const';
+import { BaseModel } from './base.entity';
 
 export enum ImageModelType {
   POST_IMAGE,
