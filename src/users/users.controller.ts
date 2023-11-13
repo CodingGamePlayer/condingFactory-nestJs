@@ -1,4 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
+import { RolesEnum } from './const/roles.enum';
+import { Roles } from './decorator/roles.decorator';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -15,6 +17,7 @@ export class UsersController {
   // }
 
   @Get()
+  @Roles(RolesEnum.ADMIN)
   getUsers() {
     return this.usersService.getAllUsers();
   }

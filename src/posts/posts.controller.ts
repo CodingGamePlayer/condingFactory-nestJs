@@ -11,16 +11,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { TransactionInterceptor } from 'src/auth/interceptor/transaction.interceptor';
+import { IsPublic } from 'src/common/decorator/is-public.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { ImageModelType } from 'src/common/entity/image.entity';
+import { RolesEnum } from 'src/users/const/roles.enum';
+import { Roles } from 'src/users/decorator/roles.decorator';
 import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entity/users.entity';
 import { DataSource, QueryRunner as QR } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { IsPostMineOrAdminGuard } from './guard/is-post-mind-or-admin.guard';
 import { PostsImagesService } from './image/dto/image.service';
 import { PostsService } from './posts.service';
 
@@ -43,12 +46,12 @@ export class PostsController {
   @Get()
   // @UseInterceptors(LogInterceptor)
   // @UseFilters(HttpExceptionFilter)
+  @IsPublic()
   getPosts(@Query() query: PaginatePostDto) {
     return this.postService.paginatePosts(query);
   }
 
   @Post('random')
-  @UseGuards(AccessTokenGuard)
   async postPostRandom(@User() user: UsersModel) {
     await this.postService.generatePosts(user.id);
 
@@ -61,7 +64,6 @@ export class PostsController {
   }
 
   @Post()
-  @UseGuards(AccessTokenGuard)
   @UseInterceptors(TransactionInterceptor)
   async postPosts(
     @User() user: UsersModel,
@@ -87,9 +89,10 @@ export class PostsController {
     return this.postService.getPostById(post.id, qr);
   }
 
-  @Patch(':id')
+  @Patch(':postId')
+  @UseGuards(IsPostMineOrAdminGuard)
   patchPost(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('postId', ParseIntPipe) id: number,
     @Body() body: UpdatePostDto,
     // @Body('title') title?: string,
     // @Body('content') content?: string,
@@ -98,6 +101,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @Roles(RolesEnum.ADMIN)
   deletePost(@Param('id', ParseIntPipe) id: number) {
     return this.postService.deletePost(+id);
   }

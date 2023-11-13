@@ -1,30 +1,16 @@
-import {
-  Body,
-  Controller,
-  Headers,
-  Post,
-  Req,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseGuards } from '@nestjs/common';
+import { IsPublic } from 'src/common/decorator/is-public.decorator';
 import { AuthService } from './auth.service';
-import {
-  MaxLengthPipe,
-  MinLengthPipe,
-  PasswordPipe,
-} from './pipe/password.pipe';
-import { BasicTokenGuard } from './guard/basic-token.guard';
-import {
-  AccessTokenGuard,
-  RefreshTokenGuard,
-} from './guard/bearer-token.guard';
 import { ResgisterUserDto } from './dto/register-user.dto';
+import { BasicTokenGuard } from './guard/basic-token.guard';
+import { RefreshTokenGuard } from './guard/bearer-token.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('token/access')
+  @IsPublic()
   @UseGuards(RefreshTokenGuard)
   postTokenAccess(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeaders(rawToken, true);
@@ -37,6 +23,7 @@ export class AuthController {
   }
 
   @Post('token/refresh')
+  @IsPublic()
   @UseGuards(RefreshTokenGuard)
   postTokenRefresh(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeaders(rawToken, true);
@@ -49,6 +36,7 @@ export class AuthController {
   }
 
   @Post('login/email')
+  @IsPublic()
   @UseGuards(BasicTokenGuard)
   postLoginEmail(@Headers('authorization') rawToken: string) {
     // email:password -> base64
@@ -60,6 +48,7 @@ export class AuthController {
   }
 
   @Post('register/email')
+  @IsPublic()
   postRegisterEmail(@Body() body: ResgisterUserDto) {
     return this.authService.registerWithEmail(body);
   }
